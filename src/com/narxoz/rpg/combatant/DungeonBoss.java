@@ -1,12 +1,12 @@
 package com.narxoz.rpg.combatant;
 
-import com.narxoz.rpg.observer.GameEvent;
-import com.narxoz.rpg.observer.GameEventType;
-import com.narxoz.rpg.observer.GameObserver;
+import com.narxoz.rpg.strategy.CombatStrategy;
 import com.narxoz.rpg.strategy.BossPhase1Strategy;
 import com.narxoz.rpg.strategy.BossPhase2Strategy;
 import com.narxoz.rpg.strategy.BossPhase3Strategy;
-import com.narxoz.rpg.strategy.CombatStrategy;
+import com.narxoz.rpg.observer.GameEvent;
+import com.narxoz.rpg.observer.GameEventType;
+import com.narxoz.rpg.observer.GameObserver;
 import java.util.ArrayList;
 import java.util.List;
 
