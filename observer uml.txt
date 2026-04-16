@@ -1,0 +1,130 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         OBSERVER PATTERN DIAGRAM                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                              ┌─────────────────────┐
+                              │   <<interface>>     │
+                              │   GameObserver      │
+                              ├─────────────────────┤
+                              │ +onEvent(event)     │
+                              └──────────┬──────────┘
+                                         │
+                                         │ implements
+                                         │
+            ┌──────────────┬─────────────┼─────────────┬──────────────┐
+            │              │             │             │              │
+            ▼              ▼             ▼             ▼              ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────┐  ┌───────────┐  ┌──────────┐
+│BattleLogger  │  │Achievement   │  │Party     │  │HeroStatus │  │Loot      │
+│              │  │Tracker       │  │Support   │  │Monitor    │  │Dropper   │
+├──────────────┤  ├──────────────┤  ├──────────┤  ├───────────┤  ├──────────┤
+│onEvent():    │  │onEvent():    │  │onEvent():│  │onEvent(): │  │onEvent():│
+│ print log    │  │ check &      │  │ heal     │  │ print     │  │ drop     │
+│ for events   │  │ unlock       │  │ random   │  │ status    │  │ loot     │
+│              │  │ achievements │  │ hero     │  │           │  │          │
+└──────────────┘  └──────────────┘  └──────────┘  └───────────┘  └──────────┘
+
+
+                              ┌─────────────────────────────────────┐
+                              │           GameEvent                  │
+                              ├─────────────────────────────────────┤
+                              │ - type: GameEventType                │
+                              │ - sourceName: String                 │
+                              │ - value: int                         │
+                              ├─────────────────────────────────────┤
+                              │ + getType(): GameEventType           │
+                              │ + getSourceName(): String            │
+                              │ + getValue(): int                    │
+                              └─────────────────────────────────────┘
+                                                   ▲
+                                                   │
+                                                   │ uses
+                                                   │
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            GameEventType (enum)                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ • ATTACK_LANDED                                                              │
+│ • HERO_LOW_HP                                                                │
+│ • HERO_DIED                                                                  │
+│ • BOSS_PHASE_CHANGED                                                         │
+│ • BOSS_DEFEATED                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+                    PUBLISHER / SUBJECT (Event System)
+                    ┌─────────────────────────────────────────┐
+                    │           DungeonEngine                  │
+                    ├─────────────────────────────────────────┤
+                    │ - observers: List<GameObserver>          │
+                    │ - heroes: List<Hero>                     │
+                    │ - boss: DungeonBoss                      │
+                    ├─────────────────────────────────────────┤
+                    │ + registerObserver(observer)             │
+                    │ - notifyObservers(event)                 │
+                    │ + runEncounter(): EncounterResult        │
+                    └────────────────┬────────────────────────┘
+                                     │
+                                     │ creates and sends
+                                     ▼
+                              ┌─────────────┐
+                              │ GameEvent   │
+                              └─────────────┘
+
+
+                    ┌─────────────────────────────────────────┐
+                    │   DungeonBoss (also an Observer!)       │
+                    ├─────────────────────────────────────────┤
+                    │ Implements GameObserver                  │
+                    ├─────────────────────────────────────────┤
+                    │ + onEvent(event): void                   │
+                    │                                          │
+                    │ Listens to BOSS_PHASE_CHANGED            │
+                    │ and switches strategy automatically!    │
+                    └─────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           EVENT FLOW DIAGRAM                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌──────────┐     attack      ┌──────────┐
+    │  Hero    │ ───────────────► │  Boss    │
+    └──────────┘                  └─────┬────┘
+         │                              │
+         │                    takeDamage()
+         │                              │
+         │                              ▼
+         │                   ┌──────────────────┐
+         │                   │ notifyObservers  │
+         │                   │ (ATTACK_LANDED)  │
+         │                   └────────┬─────────┘
+         │                            │
+         │                            ▼
+         │              ┌─────────────────────────────┐
+         │              │      All Observers          │
+         │              │  get notified and react:    │
+         │              │  • BattleLogger - prints    │
+         │              │  • AchievementTracker -     │
+         │              │    counts attacks           │
+         │              │  • PartySupport - heals     │
+         │              │  • HeroStatusMonitor -      │
+         │              │    shows status             │
+         │              │  • LootDropper - drops loot │
+         │              └─────────────────────────────┘
+         │
+         │    HP < 30%
+         ▼
+    ┌──────────┐
+    │  Engine  │ ──────► notifyObservers(HERO_LOW_HP)
+    └──────────┘
+                              │
+    Boss HP crosses 60% ──────┼─────► notifyObservers(BOSS_PHASE_CHANGED)
+    or 30%                    │
+                              │
+                              ▼
+                    ┌─────────────────────────┐
+                    │ DungeonBoss.onEvent()   │
+                    │ receives the event      │
+                    │ and calls switchToPhase │
+                    │ to change strategy!     │
+                    └─────────────────────────┘

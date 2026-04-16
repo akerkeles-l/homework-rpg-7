@@ -1,0 +1,99 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         STRATEGY PATTERN DIAGRAM                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                              ┌─────────────────────┐
+                              │   <<interface>>     │
+                              │  CombatStrategy     │
+                              ├─────────────────────┤
+                              │ +calculateDamage()  │
+                              │ +calculateDefense() │
+                              │ +getName()          │
+                              └──────────┬──────────┘
+                                         │
+                                         │ implements
+                                         │
+            ┌────────────────────────────┼────────────────────────────┐
+            │                            │                            │
+            ▼                            ▼                            ▼
+┌───────────────────────┐   ┌───────────────────────┐   ┌───────────────────────┐
+│  BerserkerStrategy    │   │    TankStrategy       │   │   NormalStrategy      │
+├───────────────────────┤   ├───────────────────────┤   ├───────────────────────┤
+│ calculateDamage():    │   │ calculateDamage():    │   │ calculateDamage():    │
+│   basePower * 1.5     │   │   basePower * 0.7     │   │   basePower           │
+│ calculateDefense():   │   │ calculateDefense():   │   │ calculateDefense():   │
+│   baseDefense * 0.5   │   │   baseDefense * 1.8   │   │   baseDefense         │
+│ getName(): "Berserker"│   │   getName(): "Tank"   │   │   getName(): "Normal" │
+└───────────────────────┘   └───────────────────────┘   └───────────────────────┘
+
+            │                            │                            │
+            └────────────────────────────┼────────────────────────────┘
+                                         │ uses
+                                         ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                   Hero                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ - name: String                                                               │
+│ - hp: int                                                                    │
+│ - maxHp: int                                                                │
+│ - attackPower: int                                                          │
+│ - defense: int                                                              │
+│ - strategy: CombatStrategy                                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ + Hero(name, hp, attackPower, defense, strategy)                           │
+│ + setStrategy(strategy: CombatStrategy)                                     │
+│ + calculateDamage(): int                                                    │
+│ + calculateDefense(): int                                                   │
+│ + takeDamage(amount: int)                                                   │
+│ + heal(amount: int)                                                         │
+│ + isAlive(): boolean                                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+                         BOSS PHASE STRATEGIES
+                         ┌───────────────────────┐
+                         │   BossPhase1Strategy  │
+                         ├───────────────────────┤
+                         │ calculateDamage():    │
+                         │   basePower * 0.8     │
+                         │ calculateDefense():   │
+                         │   baseDefense * 1.2   │
+                         │ getName(): "Calculated│
+                         └───────────────────────┘
+                         ┌───────────────────────┐
+                         │   BossPhase2Strategy  │
+                         ├───────────────────────┤
+                         │ calculateDamage():    │
+                         │   basePower * 1.3     │
+                         │ calculateDefense():   │
+                         │   baseDefense         │
+                         │ getName(): "Aggressive│
+                         └───────────────────────┘
+                         ┌───────────────────────┐
+                         │   BossPhase3Strategy  │
+                         ├───────────────────────┤
+                         │ calculateDamage():    │
+                         │   basePower * 1.8     │
+                         │ calculateDefense():   │
+                         │   0                   │
+                         │ getName(): "Desperate │
+                         └───────────────────────┘
+                                      ▲
+                                      │ uses
+                                      │
+                         ┌─────────────────────────────────────────┐
+                         │              DungeonBoss                 │
+                         ├─────────────────────────────────────────┤
+                         │ - name: String                           │
+                         │ - hp: int                                │
+                         │ - maxHp: int                            │
+                         │ - attackPower: int                       │
+                         │ - defense: int                           │
+                         │ - strategy: CombatStrategy               │
+                         │ - phase: int                             │
+                         ├─────────────────────────────────────────┤
+                         │ + takeDamage(amount: int)                │
+                         │ + calculateDamage(): int                 │
+                         │ + calculateDefense(): int                │
+                         │ + switchToPhase(newPhase: int)           │
+                         └─────────────────────────────────────────┘
